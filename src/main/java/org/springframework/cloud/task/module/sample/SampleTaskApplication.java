@@ -19,8 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.task.annotation.EnableTask;
-import org.springframework.cloud.task.config.TaskConfiguration;
+import org.springframework.cloud.task.annotation.Task;
+import org.springframework.cloud.task.config.TaskStatus;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Executes a batch job that logs a timestamp
@@ -28,21 +29,27 @@ import org.springframework.cloud.task.config.TaskConfiguration;
  * @author Glenn Renfro
  */
 @SpringBootApplication
-@EnableTask
+@Task
 public class SampleTaskApplication implements CommandLineRunner {
 
 	@Autowired
 	TimestampLogger mylog;
-	
+
 	@Autowired
-	TaskConfiguration t;
+	TaskStatus taskStatus;
+
+	private static ApplicationContext myContext= null;
 	
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(SampleTaskApplication.class, args);
+		myContext = SpringApplication.run(SampleTaskApplication.class, args);
+ 		System.exit(SpringApplication.exit(myContext));
 	}
 
 	@Override
 	public void run(String... args) {
+		taskStatus.setExitCode(22);
+		taskStatus.setExitMessage("WOW THIS WAS A GREAT RUN!");
 		mylog.logTimestamp();
 	}
+
 }

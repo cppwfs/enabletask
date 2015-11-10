@@ -15,7 +15,6 @@
  */
 package org.springframework.cloud.task.config;
 
-import org.springframework.boot.ExitCodeGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -23,17 +22,21 @@ import org.springframework.context.annotation.Configuration;
  * @author Glenn Renfro
  */
 @Configuration
-public class TaskConfiguration implements ExitCodeGenerator{
-
+public class TaskConfiguration {
 
 	@Bean
 	public TaskHandler getTaskHandler(){
 		return new TaskHandler();
-		
 	}
 
-	@Override
-	public int getExitCode() {
-		return 10000;
+	@Bean
+	public TaskStatus getTaskState(){
+		return new TaskStatus();
 	}
+
+	@Bean
+	public TaskRepository getTaskRepository(){
+		return new TaskRepository();
+	}
+
 }

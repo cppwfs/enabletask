@@ -24,7 +24,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.cloud.task.config.TaskConfiguration;
-import org.springframework.cloud.task.config.TaskHandler;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -38,8 +37,8 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Inherited
 @Configuration
-@Import({ TaskConfiguration.class, TaskHandler.class})
-public @interface EnableTask {
+@Import({ TaskConfiguration.class })
+public @interface Task {
 
 	Class<?>[] value() default {};
 

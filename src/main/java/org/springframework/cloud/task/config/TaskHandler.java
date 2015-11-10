@@ -17,14 +17,25 @@ package org.springframework.cloud.task.config;
 
 import javax.annotation.PreDestroy;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.ExitCodeGenerator;
+
 /**
  * @author Glenn Renfro
  */
-public class TaskHandler {
+public class TaskHandler  implements ExitCodeGenerator {
+
+	@Autowired
+	TaskStatus taskStatus;
 	
 	@PreDestroy
 	public void captureStatus(){
-		System.out.println("well that's it");
-		
+		System.out.println("Repository should store ==>" + taskStatus.getExitCode() + "==>"+taskStatus.getExitMessage());
 	}
+
+	@Override
+	public int getExitCode() {
+		return taskStatus.getExitCode();
+	}
+
 }
