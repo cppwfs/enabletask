@@ -15,41 +15,21 @@
  */
 package org.springframework.cloud.task.module.sample;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.task.annotation.Task;
-import org.springframework.cloud.task.config.TaskStatus;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Executes a batch job that logs a timestamp
  *
+ * Bootstrap Spring Boot application.
  * @author Glenn Renfro
  */
 @SpringBootApplication
-@Task
-public class SampleTaskApplication implements CommandLineRunner {
-
-	@Autowired
-	TimestampLogger mylog;
-
-	@Autowired
-	TaskStatus taskStatus;
+public class SampleTaskApplication  {
 
 	private static ApplicationContext myContext= null;
-	
+
 	public static void main(String[] args) throws Exception {
-		myContext = SpringApplication.run(SampleTaskApplication.class, args);
- 		System.exit(SpringApplication.exit(myContext));
+		SpringApplication.run(SampleTaskApplication.class);
 	}
-
-	@Override
-	public void run(String... args) {
-		taskStatus.setExitCode(22);
-		taskStatus.setExitMessage("WOW THIS WAS A GREAT RUN!");
-		mylog.logTimestamp();
-	}
-
 }

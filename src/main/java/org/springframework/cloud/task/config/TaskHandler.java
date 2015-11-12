@@ -15,27 +15,73 @@
  */
 package org.springframework.cloud.task.config;
 
-import javax.annotation.PreDestroy;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Glenn Renfro
  */
-public class TaskHandler  implements ExitCodeGenerator {
+@Aspect
+@Component
+public class TaskHandler  {
 
 	@Autowired
-	TaskStatus taskStatus;
-	
-	@PreDestroy
-	public void captureStatus(){
-		System.out.println("Repository should store ==>" + taskStatus.getExitCode() + "==>"+taskStatus.getExitMessage());
+	private ApplicationContext context;
+
+	@Autowired
+	private TaskRepository repository;
+
+
+	int resultCode = -1;
+	//TODO: Add method for initializing entry in Task Repo
+
+
+//	@AfterReturning("execution(* org..Sample*.*(..))")
+//	public void logServiceAccess(JoinPoint joinPoint) {
+//		System.out.println("			All Methods: " + joinPoint);
+//	}
+
+	@AfterReturning("execution(* org.springframework.boot.CommandLineRunner.run(..))")
+	public void anotherPointCut(JoinPoint joinPoint) {
+
+		System.out.println("CommandLineRunnerCaught: " + joinPoint);
 	}
 
-	@Override
-	public int getExitCode() {
-		return taskStatus.getExitCode();
+	@AfterReturning("execution(* run(..))")
+	public void logExit(JoinPoint joinPoint) {
+		System.out.println("		All Runs: " + joinPoint);
 	}
 
+	@AfterReturning("within( @org.springframework.cloud.task.annotation.Task *) && execution(* org.springframework.boot.CommandLineRunner.run(..))")
+	public void annotationMe(JoinPoint joinPoint) {
+		int result = 0;
+		try {
+			List<ExitCodeGenerator> generators = new ArrayList<ExitCodeGenerator>();
+			generators
+					.addAll(context.getBeansOfType(ExitCodeGenerator.class).values());
+			for (ExitCodeGenerator generator : generators) {
+				result = generator.getExitCode();
+			}
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+		}
+		repository.storeCode(result);
+		System.out.println("****Annotated Runs: " + joinPoint);
+	}
+
+		@AfterThrowing("execution(* run(..))")
+	public void logException(JoinPoint joinPoint) {
+		System.out.println("Exception Run: " + joinPoint);
+		repository.storeCode(1);
+	}
 }

@@ -29,10 +29,6 @@ public class TaskConfiguration {
 		return new TaskHandler();
 	}
 
-	@Bean
-	public TaskStatus getTaskState(){
-		return new TaskStatus();
-	}
 
 	@Bean
 	public TaskRepository getTaskRepository(){

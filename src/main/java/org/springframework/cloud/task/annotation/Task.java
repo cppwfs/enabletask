@@ -26,6 +26,7 @@ import java.lang.annotation.Target;
 import org.springframework.cloud.task.config.TaskConfiguration;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Component;
 
 /**
  * Annotation that identifies a class as a task.
@@ -37,6 +38,7 @@ import org.springframework.context.annotation.Import;
 @Documented
 @Inherited
 @Configuration
+@Component
 @Import({ TaskConfiguration.class })
 public @interface Task {
 
