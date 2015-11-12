@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  * up by the aspect.
  */
 @Component
-public class SampleA implements CommandLineRunner{
+public class SampleA implements CommandLineRunner {
 
 	@Autowired
 	TimestampLogger mylog;

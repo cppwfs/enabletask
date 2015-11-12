@@ -8,7 +8,7 @@ import org.springframework.cloud.task.annotation.Task;
  * Represents a Task and its status will be recorded to a Task Repository.
  */
 @Task
-public class SampleB implements CommandLineRunner{
+public class SampleB implements CommandLineRunner {
 
 	@Autowired
 	TimestampLogger mylog;

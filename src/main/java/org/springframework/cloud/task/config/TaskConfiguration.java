@@ -25,13 +25,13 @@ import org.springframework.context.annotation.Configuration;
 public class TaskConfiguration {
 
 	@Bean
-	public TaskHandler getTaskHandler(){
+	public TaskHandler getTaskHandler() {
 		return new TaskHandler();
 	}
 
 
 	@Bean
-	public TaskRepository getTaskRepository(){
+	public TaskRepository getTaskRepository() {
 		return new TaskRepository();
 	}
 
