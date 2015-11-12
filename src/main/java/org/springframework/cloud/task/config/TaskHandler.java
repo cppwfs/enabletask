@@ -16,9 +16,7 @@
 package org.springframework.cloud.task.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.aspectj.lang.JoinPoint;
@@ -28,6 +26,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.cloud.task.repository.TaskRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -46,7 +45,7 @@ public class TaskHandler {
 	@Autowired
 	private TaskRepository repository;
 
-	private Map<Integer, String> jobInstanceLookup = new HashMap<Integer, String>();
+	private String uuId;
 
 	/**
 	 * Looks for any CommandLineRunner.run method with its class annotated with @Task
@@ -55,9 +54,11 @@ public class TaskHandler {
 	 *
 	 * @param joinPoint
 	 */
-	@Before("within( @org.springframework.cloud.task.annotation.Task *) && execution(* org.springframework.boot.CommandLineRunner.run(..))")
+	@Before("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
 	public void beforeCommandLineRunner(JoinPoint joinPoint) {
-		createTaskInstance(joinPoint.getTarget().hashCode());
+		System.out.println(uuId);
+		uuId = UUID.randomUUID().toString();
+		repository.createTaskInstance(uuId);
 	}
 
 	/**
@@ -67,66 +68,8 @@ public class TaskHandler {
 	 *
 	 * @param joinPoint
 	 */
-	@AfterReturning("within( @org.springframework.cloud.task.annotation.Task *) && execution(* org.springframework.boot.CommandLineRunner.run(..))")
+	@AfterReturning("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
 	public void afterReturnCommandLineRunner(JoinPoint joinPoint) {
-		storeExitCode(joinPoint.getTarget().hashCode());
-	}
-
-	/**
-	 * Looks for any CommandLineRunner. run method with its class annotated with @Task
-	 * and calls the repository implementation to store the exitCode of 1
-	 * for the task in the repo in the case of an exception.
-	 *
-	 * @param joinPoint
-	 */
-	@AfterThrowing("within( @org.springframework.cloud.task.annotation.Task *) && execution(* org.springframework.boot.CommandLineRunner.run(..))")
-	public void logExceptionCommandLineRunner(JoinPoint joinPoint) {
-		repository.taskExit(jobInstanceLookup.get(joinPoint.getTarget().hashCode()), 1);
-	}
-
-	/**
-	 * Looks for any ApplicationRunner.run method with its class annotated with @Task
-	 * and calls the repository implementation to store the start of the task in the repo
-	 * before the run method.
-	 *
-	 * @param joinPoint
-	 */
-	@Before("within( @org.springframework.cloud.task.annotation.Task *) && execution(* org.springframework.boot.ApplicationRunner.run(..))")
-	public void beforeApplicationRunner(JoinPoint joinPoint) {
-		createTaskInstance(joinPoint.getTarget().hashCode());
-	}
-
-	/**
-	 * Looks for any ApplicationRunner.run method with its class annotated with @Task
-	 * and calls repository implementation to store the exit of the task in the repo after
-	 * the run method.
-	 *
-	 * @param joinPoint
-	 */
-	@AfterReturning("within( @org.springframework.cloud.task.annotation.Task *) && execution(* org.springframework.boot.ApplicationRunner.run(..))")
-	public void afterReturnApplicationRunner(JoinPoint joinPoint) {
-		storeExitCode(joinPoint.getTarget().hashCode());
-	}
-
-	/**
-	 * Looks for any ApplicationRunner.run method with its class annotated with @Task
-	 * and calls the repository implementation to store the exitCode of 1)
-	 * for the task in the repo if exception is thrown.
-	 *
-	 * @param joinPoint
-	 */
-	@AfterThrowing("within( @org.springframework.cloud.task.annotation.Task *) && execution(* org.springframework.boot.ApplicationRunner.run(..))")
-	public void logExceptionApplicationRunner(JoinPoint joinPoint) {
-		repository.taskExit(jobInstanceLookup.get(joinPoint.getTarget().hashCode()), 1);
-	}
-
-	private void createTaskInstance(int hashCode) {
-		String uuId = UUID.randomUUID().toString();
-		jobInstanceLookup.put(hashCode, uuId);
-		repository.createTaskInstance(uuId);
-	}
-
-	private void storeExitCode(int hashCode) {
 		int result = 0;
 		try {
 			List<ExitCodeGenerator> generators = new ArrayList<ExitCodeGenerator>();
@@ -139,6 +82,20 @@ public class TaskHandler {
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		repository.taskExit(jobInstanceLookup.get(hashCode), result);
+		repository.update(uuId, result);
+		System.out.println("The task name is "+ joinPoint.getSignature());
+
+	}
+
+	/**
+	 * Looks for any CommandLineRunner. run method with its class annotated with @Task
+	 * and calls the repository implementation to store the exitCode of 1
+	 * for the task in the repo in the case of an exception.
+	 *
+	 * @param joinPoint
+	 */
+	@AfterThrowing("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
+	public void logExceptionCommandLineRunner(JoinPoint joinPoint) {
+		repository.update(uuId, 1);
 	}
 }
