@@ -25,7 +25,9 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.cloud.task.repository.TaskExecution;
 import org.springframework.cloud.task.repository.TaskRepository;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -45,6 +47,9 @@ public class TaskHandler {
 	@Autowired
 	private TaskRepository repository;
 
+	@Value("${spring.cloud.task.name:}")
+	private String taskName;
+
 	private String uuId;
 
 	/**
@@ -58,7 +63,8 @@ public class TaskHandler {
 	public void beforeCommandLineRunner(JoinPoint joinPoint) {
 		System.out.println(uuId);
 		uuId = UUID.randomUUID().toString();
-		repository.createTaskInstance(uuId);
+		TaskExecution taskExecution = new TaskExecution(uuId,0,taskName);
+		repository.createTaskInstance(taskExecution);
 	}
 
 	/**
@@ -83,7 +89,11 @@ public class TaskHandler {
 			ex.printStackTrace();
 		}
 		repository.update(uuId, result);
-		System.out.println("The task name is "+ joinPoint.getSignature());
+		if(taskName.isEmpty()) {
+			System.out.println("The task name is " + joinPoint.getSignature());
+		}else{
+			System.out.println("The task name is " + taskName);
+		}
 
 	}
 

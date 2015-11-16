@@ -7,5 +7,5 @@ public interface TaskRepository {
 
 	public void update(String uuId, int code) ;
 
-	public void createTaskInstance(String uuId) ;
+	public void createTaskInstance(TaskExecution taskExecution) ;
 }
