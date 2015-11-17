@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Offers methods that allow users to query the task executions that are available.
  * @author Glenn Renfro
  */
 public interface TaskExplorer {
