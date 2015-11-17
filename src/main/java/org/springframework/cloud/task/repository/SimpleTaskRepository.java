@@ -5,11 +5,11 @@ package org.springframework.cloud.task.repository;
  */
 
 public class SimpleTaskRepository implements TaskRepository {
-	public void update(String uuId, int code) {
-		System.out.println("THE CODE FOR TASK: " + uuId + " IS " + code);
+	public void update(TaskExecution taskExecution) {
+		System.out.println("THE CODE FOR TASK: " + taskExecution.getExecutionId() + " IS " + taskExecution.getExitCode());
 	}
 
-	public void createTaskInstance(TaskExecution taskExecution) {
+	public void createTaskExecution(TaskExecution taskExecution) {
 		System.out.println("Storing " + taskExecution.getTaskName() + " for executionID "+ taskExecution.getExecutionId());
 	}
 }

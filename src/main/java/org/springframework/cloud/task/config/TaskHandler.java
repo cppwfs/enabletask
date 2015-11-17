@@ -64,7 +64,7 @@ public class TaskHandler {
 		System.out.println(uuId);
 		uuId = UUID.randomUUID().toString();
 		TaskExecution taskExecution = new TaskExecution(uuId,0,taskName);
-		repository.createTaskInstance(taskExecution);
+		repository.createTaskExecution(taskExecution);
 	}
 
 	/**
@@ -88,7 +88,8 @@ public class TaskHandler {
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		repository.update(uuId, result);
+		TaskExecution taskExecution = new TaskExecution(uuId, result, taskName);
+		repository.update(taskExecution);
 		if(taskName.isEmpty()) {
 			System.out.println("The task name is " + joinPoint.getSignature());
 		}else{
@@ -106,6 +107,7 @@ public class TaskHandler {
 	 */
 	@AfterThrowing("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
 	public void logExceptionCommandLineRunner(JoinPoint joinPoint) {
-		repository.update(uuId, 1);
+		TaskExecution taskExecution = new TaskExecution(uuId, 1, taskName);
+		repository.update(taskExecution);
 	}
 }

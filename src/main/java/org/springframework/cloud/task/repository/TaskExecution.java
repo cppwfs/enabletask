@@ -9,6 +9,6 @@ import lombok.Data;
 @AllArgsConstructor
 public @Data class  TaskExecution {
 	private String executionId;
-	private int status;
+	private int exitCode;
 	private String taskName;
 }
