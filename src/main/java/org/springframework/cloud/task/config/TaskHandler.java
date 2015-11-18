@@ -16,6 +16,7 @@
 package org.springframework.cloud.task.config;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,7 +51,9 @@ public class TaskHandler {
 	@Value("${spring.cloud.task.name:}")
 	private String taskName;
 
-	private String uuId;
+	private String executionId;
+
+	private TaskExecution taskExecution;
 
 	/**
 	 * Looks for any CommandLineRunner.run method with its class annotated with @Task
@@ -61,9 +64,14 @@ public class TaskHandler {
 	 */
 	@Before("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
 	public void beforeCommandLineRunner(JoinPoint joinPoint) {
-		System.out.println(uuId);
-		uuId = UUID.randomUUID().toString();
-		TaskExecution taskExecution = new TaskExecution(uuId,0,taskName);
+		executionId = UUID.randomUUID().toString();
+		taskExecution = new TaskExecution();
+		if (taskName == null || taskName.length()==0){
+			taskName = joinPoint.getSignature().toShortString();
+		}
+		taskExecution.setTaskName(taskName);
+		taskExecution.setStartTime(new Date());
+		taskExecution.setExecutionId(executionId);
 		repository.createTaskExecution(taskExecution);
 	}
 
@@ -88,14 +96,10 @@ public class TaskHandler {
 		catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		TaskExecution taskExecution = new TaskExecution(uuId, result, taskName);
+		taskExecution.setEndTime(new Date());
+		taskExecution.setExitCode(result);
 		repository.update(taskExecution);
-		if(taskName.isEmpty()) {
-			System.out.println("The task name is " + joinPoint.getSignature());
-		}else{
-			System.out.println("The task name is " + taskName);
-		}
-
+		System.out.println(taskExecution);
 	}
 
 	/**
@@ -107,7 +111,8 @@ public class TaskHandler {
 	 */
 	@AfterThrowing("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
 	public void logExceptionCommandLineRunner(JoinPoint joinPoint) {
-		TaskExecution taskExecution = new TaskExecution(uuId, 1, taskName);
-		repository.update(taskExecution);
+			taskExecution.setEndTime(new Date());
+			taskExecution.setExitCode(1);
+			repository.update(taskExecution);
 	}
 }

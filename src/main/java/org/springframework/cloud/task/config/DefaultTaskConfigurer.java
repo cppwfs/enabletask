@@ -15,7 +15,7 @@
  */
 package org.springframework.cloud.task.config;
 
-import org.springframework.cloud.task.repository.SimpleTaskRepository;
+import org.springframework.cloud.task.repository.LoggerTaskRepository;
 import org.springframework.cloud.task.repository.TaskRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,7 +36,7 @@ public class DefaultTaskConfigurer {
 
 	@Bean
 	public TaskRepository getTaskRepository() {
-		return new SimpleTaskRepository();
+		return new LoggerTaskRepository();
 	}
 
 }
