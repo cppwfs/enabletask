@@ -19,7 +19,7 @@ public interface TaskExplorer {
 
 
 	/**
-	 * retrieve a collection of taskExecutions that have the task name provided.
+	 * Retrieve a collection of taskExecutions that have the task name provided.
 	 * @param taskName the name of the task
 	 * @return the set of running executions for tasks with the specified name
 	 */

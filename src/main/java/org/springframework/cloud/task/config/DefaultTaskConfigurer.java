@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Scope;
  * @author Glenn Renfro
  */
 @Configuration
-public class TaskConfiguration {
+public class DefaultTaskConfigurer {
 
 	@Bean
 	@Scope("prototype")
