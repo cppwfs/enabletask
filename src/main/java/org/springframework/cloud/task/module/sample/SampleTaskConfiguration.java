@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Executes a batch job that logs a timestamp
+ *
  * @author Glenn Renfro.
  */
 @Configuration
@@ -30,9 +31,9 @@ import org.springframework.context.annotation.Configuration;
 public class SampleTaskConfiguration {
 	@Autowired
 	SampleTaskProperties config;
-	
+
 	@Bean
-	public TimestampLogger getTimeStampLogger(){
+	public TimestampLogger getTimeStampLogger() {
 		return new TimestampLogger(config.getFormat());
 	}
 }

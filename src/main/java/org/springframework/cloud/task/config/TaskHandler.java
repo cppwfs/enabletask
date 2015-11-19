@@ -26,8 +26,8 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.cloud.task.annotation.Task;
 import org.springframework.cloud.task.repository.TaskExecution;
 import org.springframework.cloud.task.repository.TaskRepository;
 import org.springframework.context.ApplicationContext;
@@ -36,6 +36,7 @@ import org.springframework.stereotype.Component;
 /**
  * Offers the advice on how to record tasks to the repository for both applicationrunner
  * and commandlinerunner spring boot applications.
+ *
  * @author Glenn Renfro
  */
 @Aspect
@@ -48,7 +49,6 @@ public class TaskHandler {
 	@Autowired
 	private TaskRepository repository;
 
-	@Value("${spring.cloud.task.name:}")
 	private String taskName;
 
 	private String executionId;
@@ -66,9 +66,13 @@ public class TaskHandler {
 	public void beforeCommandLineRunner(JoinPoint joinPoint) {
 		executionId = UUID.randomUUID().toString();
 		taskExecution = new TaskExecution();
-		if (taskName == null || taskName.length()==0){
-			taskName = joinPoint.getSignature().toShortString();
+
+		Task a = joinPoint.getTarget().getClass().getAnnotation(Task.class);
+		taskName = a.taskName();
+		if (taskName == null || taskName.length() == 0) {
+			taskName = joinPoint.getTarget().getClass().getName();
 		}
+
 		taskExecution.setTaskName(taskName);
 		taskExecution.setStartTime(new Date());
 		taskExecution.setExecutionId(executionId);
@@ -85,21 +89,15 @@ public class TaskHandler {
 	@AfterReturning("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
 	public void afterReturnCommandLineRunner(JoinPoint joinPoint) {
 		int result = 0;
-		try {
-			List<ExitCodeGenerator> generators = new ArrayList<ExitCodeGenerator>();
-			generators
-					.addAll(context.getBeansOfType(ExitCodeGenerator.class).values());
-			for (ExitCodeGenerator generator : generators) {
-				result = generator.getExitCode();
-			}
-		}
-		catch (Exception ex) {
-			ex.printStackTrace();
+		List<ExitCodeGenerator> generators = new ArrayList<ExitCodeGenerator>();
+		generators
+				.addAll(context.getBeansOfType(ExitCodeGenerator.class).values());
+		for (ExitCodeGenerator generator : generators) {
+			result = generator.getExitCode();
 		}
 		taskExecution.setEndTime(new Date());
 		taskExecution.setExitCode(result);
 		repository.update(taskExecution);
-		System.out.println(taskExecution);
 	}
 
 	/**
@@ -111,8 +109,9 @@ public class TaskHandler {
 	 */
 	@AfterThrowing("within( @org.springframework.cloud.task.annotation.Task *) && (execution(* org.springframework.boot.CommandLineRunner.run(..)) || execution(* org.springframework.boot.ApplicationRunner.run(..)))")
 	public void logExceptionCommandLineRunner(JoinPoint joinPoint) {
-			taskExecution.setEndTime(new Date());
-			taskExecution.setExitCode(1);
-			repository.update(taskExecution);
+		taskExecution.setEndTime(new Date());
+		taskExecution.setExitCode(1);
+		repository.update(taskExecution);
 	}
+
 }

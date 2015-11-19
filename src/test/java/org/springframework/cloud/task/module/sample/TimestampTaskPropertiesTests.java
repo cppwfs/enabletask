@@ -31,7 +31,7 @@ import org.springframework.context.annotation.Configuration;
 public class TimestampTaskPropertiesTests {
 
 	@Test(expected = BeanCreationException.class)
-	public void testEmptyFormat(){
+	public void testEmptyFormat() {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 		EnvironmentTestUtils.addEnvironment(context, "format:");
 		context.register(Conf.class);

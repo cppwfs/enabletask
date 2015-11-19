@@ -42,6 +42,8 @@ import org.springframework.stereotype.Component;
 @Import({ DefaultTaskConfigurer.class })
 public @interface Task {
 
+	public String taskName() default "";
+
 	Class<?>[] value() default {};
 
 }

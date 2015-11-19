@@ -26,9 +26,9 @@ public class SampleTaskProperties {
 	/**
 	 * The timestamp format, "yyyy-MM-dd HH:mm:ss.SSS" by default.
 	 */
-	private String format  = "yyyy-MM-dd HH:mm:ss.SSS";
+	private String format = "yyyy-MM-dd HH:mm:ss.SSS";
 
-	@NotBlank(message="format must not be empty nor null")
+	@NotBlank(message = "format must not be empty nor null")
 	public String getFormat() {
 		return format;
 	}

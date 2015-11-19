@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.cloud.task.config;
 
 import org.springframework.cloud.task.repository.LoggerTaskRepository;
@@ -22,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
 /**
+ * If no TaskConfigurer is present this configuration will be used.
  * @author Glenn Renfro
  */
 @Configuration

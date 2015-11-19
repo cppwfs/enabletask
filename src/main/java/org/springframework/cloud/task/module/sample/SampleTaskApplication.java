@@ -19,12 +19,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- *
  * Bootstrap Spring Boot application.
+ *
  * @author Glenn Renfro
  */
 @SpringBootApplication
-public class SampleTaskApplication  {
+public class SampleTaskApplication {
 
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(SampleTaskApplication.class);
